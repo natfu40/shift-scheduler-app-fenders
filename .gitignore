@@ -1,0 +1,63 @@
+# Backend
+*.log
+# Docker
+
+Thumbs.db
+ehthumbs.db
+.Trashes
+.Spotlight-V100
+._*
+.DS_Store?
+.DS_Store
+# OS
+
+lerna-debug.log*
+yarn-error.log*
+yarn-debug.log*
+npm-debug.log*
+
+.env.production.local
+.env.test.local
+.env.development.local
+.env.local
+# Misc
+
+/frontend/dist
+/frontend/build
+# Production
+
+/frontend/coverage
+# Testing
+
+.pnp.js
+/frontend/.pnp
+/frontend/node_modules
+# Dependencies
+
+# Frontend
+
+.DS_Store
+application-local.properties
+# Spring Boot
+
+dependency-reduced-pom.xml
+release.properties
+pom.xml.next
+pom.xml.versionsBackup
+pom.xml.releaseBackup
+pom.xml.tag
+.m2/
+*.ear
+*.war
+*.jar
+target/
+# Maven
+
+*~
+*.swo
+*.swp
+.idea/
+.vscode/
+# IDE
+
+
