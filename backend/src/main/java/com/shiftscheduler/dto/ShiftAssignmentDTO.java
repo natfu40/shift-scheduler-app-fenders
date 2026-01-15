@@ -4,7 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Data
 @NoArgsConstructor
@@ -18,7 +18,7 @@ public class ShiftAssignmentDTO {
     private Long shiftId;
     private String shiftName;
     private boolean accepted;
-    private LocalDateTime signedUpAt;
-    private LocalDateTime acceptedAt;
+    private Instant signedUpAt;
+    private Instant acceptedAt;
 }
 

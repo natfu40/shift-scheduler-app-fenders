@@ -53,7 +53,6 @@ public class ShiftController {
     }
 
     @GetMapping("/{shiftId}/details")
-    @PreAuthorize("hasRole('ADMIN')")
     public ResponseEntity<ShiftDetailDTO> getShiftDetails(@PathVariable Long shiftId) {
         ShiftDetailDTO response = shiftService.getShiftDetails(shiftId);
         return ResponseEntity.ok(response);

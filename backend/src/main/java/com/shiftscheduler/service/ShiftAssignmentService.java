@@ -10,7 +10,7 @@ import com.shiftscheduler.repository.UserRepository;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -60,7 +60,7 @@ public class ShiftAssignmentService {
         User adminUser = userRepository.findById(adminUserId).orElseThrow(() -> new RuntimeException("Admin user not found"));
 
         assignment.setAccepted(true);
-        assignment.setAcceptedAt(LocalDateTime.now());
+        assignment.setAcceptedAt(Instant.now());
 
         Shift shift = assignment.getShift();
         shift.setFilledSlots(shift.getFilledSlots() + 1);
@@ -78,6 +78,15 @@ public class ShiftAssignmentService {
         ShiftAssignment assignment = shiftAssignmentRepository.findById(assignmentId)
                 .orElseThrow(() -> new RuntimeException("Assignment not found"));
         User adminUser = userRepository.findById(adminUserId).orElseThrow(() -> new RuntimeException("Admin user not found"));
+
+        // If the signup was accepted, decrement the filled slots
+        if (assignment.isAccepted()) {
+            Shift shift = assignment.getShift();
+            if (shift.getFilledSlots() > 0) {
+                shift.setFilledSlots(shift.getFilledSlots() - 1);
+                shiftRepository.save(shift);
+            }
+        }
 
         auditLogService.logAction(adminUser, "REJECT_SIGNUP", "ShiftAssignment", assignmentId,
                 "Rejected signup for shift: " + assignment.getShift().getName() + " for user: " + assignment.getUser().getEmail());

@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "user_roles")
@@ -27,11 +27,11 @@ public class UserRole {
     private Role role;
 
     @Column(name = "assigned_at", nullable = false, updatable = false)
-    private LocalDateTime assignedAt;
+    private Instant assignedAt;
 
     @PrePersist
     protected void onCreate() {
-        assignedAt = LocalDateTime.now();
+        assignedAt = Instant.now();
     }
 }
 

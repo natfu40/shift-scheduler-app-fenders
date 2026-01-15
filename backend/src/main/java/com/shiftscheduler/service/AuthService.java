@@ -3,53 +3,40 @@ package com.shiftscheduler.service;
 import com.shiftscheduler.dto.LoginRequest;
 import com.shiftscheduler.dto.SignupRequest;
 import com.shiftscheduler.dto.AuthResponse;
+import com.shiftscheduler.exception.ResourceNotFoundException;
 import com.shiftscheduler.model.User;
 import com.shiftscheduler.repository.UserRepository;
 import com.shiftscheduler.security.JwtTokenProvider;
 import com.shiftscheduler.security.UserPrincipal;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
-import org.springframework.security.core.authority.SimpleGrantedAuthority;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.stereotype.Service;
-
-import java.util.Collections;
+import org.springframework.transaction.annotation.Transactional;
 
 @Service
+@RequiredArgsConstructor
 public class AuthService {
 
-    @Autowired
-    private UserRepository userRepository;
+    private final UserRepository userRepository;
+    private final PasswordEncoder passwordEncoder;
+    private final AuthenticationManager authenticationManager;
+    private final JwtTokenProvider tokenProvider;
+    private final AuditLogService auditLogService;
 
-    @Autowired
-    private PasswordEncoder passwordEncoder;
-
-    @Autowired
-    private AuthenticationManager authenticationManager;
-
-    @Autowired
-    private JwtTokenProvider tokenProvider;
-
-    @Autowired
-    private AuditLogService auditLogService;
-
+    @Transactional
     public AuthResponse signup(SignupRequest signupRequest) {
         if (userRepository.existsByEmail(signupRequest.getEmail())) {
-            throw new RuntimeException("Email already exists");
+            throw new IllegalArgumentException("Email already exists");
         }
 
-        User user = new User();
-        user.setEmail(signupRequest.getEmail());
-        user.setPassword(passwordEncoder.encode(signupRequest.getPassword()));
-        user.setFirstName(signupRequest.getFirstName());
-        user.setLastName(signupRequest.getLastName());
-        user.setActive(true);
-
+        User user = buildUserFromSignupRequest(signupRequest);
         userRepository.save(user);
 
-        auditLogService.logAction(user, "SIGNUP", "User", user.getId(), "User registered with email: " + user.getEmail());
+        auditLogService.logAction(user, "SIGNUP", "User", user.getId(),
+                "User registered with email: " + user.getEmail());
 
         return login(new LoginRequest(signupRequest.getEmail(), signupRequest.getPassword()));
     }
@@ -64,7 +51,8 @@ public class AuthService {
 
         String token = tokenProvider.generateToken(authentication);
         UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        User user = userRepository.findById(userPrincipal.getId()).orElseThrow();
+        User user = userRepository.findById(userPrincipal.getId())
+                .orElseThrow(() -> ResourceNotFoundException.user(userPrincipal.getId()));
 
         auditLogService.logAction(user, "LOGIN", "User", user.getId(), "User logged in");
 
@@ -76,6 +64,16 @@ public class AuthService {
                 user.getFirstName(),
                 user.getLastName()
         );
+    }
+
+    private User buildUserFromSignupRequest(SignupRequest request) {
+        User user = new User();
+        user.setEmail(request.getEmail());
+        user.setPassword(passwordEncoder.encode(request.getPassword()));
+        user.setFirstName(request.getFirstName());
+        user.setLastName(request.getLastName());
+        user.setActive(true);
+        return user;
     }
 }
 

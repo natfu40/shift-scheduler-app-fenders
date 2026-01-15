@@ -10,5 +10,6 @@ import org.springframework.stereotype.Repository;
 public interface AuditLogRepository extends JpaRepository<AuditLog, Long> {
     Page<AuditLog> findByUserId(Long userId, Pageable pageable);
     Page<AuditLog> findByAction(String action, Pageable pageable);
+    void deleteByUserId(Long userId);
 }
 

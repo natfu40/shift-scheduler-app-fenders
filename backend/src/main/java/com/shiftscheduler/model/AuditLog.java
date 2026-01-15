@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "audit_logs")
@@ -38,11 +38,11 @@ public class AuditLog {
     private String ipAddress;
 
     @Column(name = "action_at", nullable = false, updatable = false)
-    private LocalDateTime actionAt;
+    private Instant actionAt;
 
     @PrePersist
     protected void onCreate() {
-        actionAt = LocalDateTime.now();
+        actionAt = Instant.now();
     }
 }
 

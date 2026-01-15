@@ -1,4 +1,4 @@
-# Shift Scheduler Application
+# Fenders Brewing Scheduler Application
 This project is licensed under the MIT License.
 
 ## License

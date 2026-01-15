@@ -5,7 +5,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 
-import java.time.LocalDateTime;
+import java.time.Instant;
 
 @Entity
 @Table(name = "shift_assignments")
@@ -30,14 +30,14 @@ public class ShiftAssignment {
     private boolean accepted = false;
 
     @Column(name = "signed_up_at", nullable = false, updatable = false)
-    private LocalDateTime signedUpAt;
+    private Instant signedUpAt;
 
     @Column(name = "accepted_at")
-    private LocalDateTime acceptedAt;
+    private Instant acceptedAt;
 
     @PrePersist
     protected void onCreate() {
-        signedUpAt = LocalDateTime.now();
+        signedUpAt = Instant.now();
     }
 }
 

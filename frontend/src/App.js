@@ -7,7 +7,9 @@ import LoginPage from './pages/LoginPage';
 import SignupPage from './pages/SignupPage';
 import EmployeeDashboard from './pages/EmployeeDashboard';
 import AdminDashboard from './pages/AdminDashboard';
+import UsersPage from './pages/UsersPage';
 import ShiftCalendar from './pages/ShiftCalendar';
+import Audits from './pages/Audits';
 import './App.css';
 
 function App() {
@@ -27,6 +29,22 @@ function App() {
             element={
               <ProtectedAdminRoute>
                 <AdminDashboard />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route
+            path="/users"
+            element={
+              <ProtectedAdminRoute>
+                <UsersPage />
+              </ProtectedAdminRoute>
+            }
+          />
+          <Route
+            path="/audits"
+            element={
+              <ProtectedAdminRoute>
+                <Audits />
               </ProtectedAdminRoute>
             }
           />
