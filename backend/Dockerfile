@@ -4,11 +4,11 @@ FROM maven:3.9-amazoncorretto-21 AS builder
 WORKDIR /app
 
 # Copy dependency files first for better caching
-COPY pom.xml .
+COPY backend/pom.xml .
 RUN mvn dependency:go-offline -B
 
 # Copy source code
-COPY src src
+COPY backend/src src
 
 # Build the application
 RUN mvn clean package -DskipTests -B
