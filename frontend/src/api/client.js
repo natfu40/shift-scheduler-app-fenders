@@ -5,20 +5,15 @@ const axiosInstance = axios.create({
   baseURL: API_CONFIG.BASE_URL,
 });
 
-// Add token to requests (but not for auth endpoints)
+// Add token to requests (but not for auth endpoints that don't need them)
 axiosInstance.interceptors.request.use((config) => {
   const token = localStorage.getItem('token');
   const isAuthEndpoint = config.url.includes(API_ENDPOINTS.AUTH.SIGNUP) ||
-                        config.url.includes(API_ENDPOINTS.AUTH.LOGIN);
+                        config.url.includes(API_ENDPOINTS.AUTH.LOGIN) ||
+                        config.url.includes('/auth/login-hashed');
 
   if (token && !isAuthEndpoint) {
     config.headers.Authorization = `Bearer ${token}`;
-    // Debug logging for delete requests
-    if (config.method === 'delete') {
-      console.log('Delete request with token:', token ? 'Token present' : 'No token');
-    }
-  } else if (!isAuthEndpoint) {
-    console.warn('No token available for authenticated request:', config.url);
   }
   return config;
 });
@@ -27,14 +22,8 @@ axiosInstance.interceptors.request.use((config) => {
 axiosInstance.interceptors.response.use(
   (response) => response,
   (error) => {
-    if (error.response?.status === 401) {
-      console.error('401 Unauthorized error:', {
-        url: error.config?.url,
-        method: error.config?.method,
-        token: localStorage.getItem('token') ? 'Present' : 'Missing',
-        headers: error.config?.headers
-      });
-    }
+    // In production, you might want to send errors to a logging service
+    // For now, just reject the error without console logging
     return Promise.reject(error);
   }
 );
@@ -45,7 +34,8 @@ const createPaginatedRequest = (url, page = DEFAULT_PAGINATION.page, size = DEFA
 
 export const authAPI = {
   signup: (data) => axiosInstance.post(API_ENDPOINTS.AUTH.SIGNUP, data),
-  login: (data) => axiosInstance.post(API_ENDPOINTS.AUTH.LOGIN, data),
+  login: (data) => axiosInstance.post('/auth/login-hashed', data),
+  changePassword: (data) => axiosInstance.post('/auth/change-password-hashed', data),
 };
 
 export const shiftAPI = {
@@ -81,6 +71,7 @@ export const adminAPI = {
 
 export const userAPI = {
   getAllUsers: () => axiosInstance.get(API_ENDPOINTS.USERS.BASE),
+  createUser: (data) => axiosInstance.post(API_ENDPOINTS.USERS.BASE, data),
   deleteUser: (userId) => axiosInstance.delete(API_ENDPOINTS.USERS.BY_ID(userId)),
 };
 

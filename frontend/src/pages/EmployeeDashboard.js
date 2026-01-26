@@ -113,7 +113,9 @@ function EmployeeDashboard() {
       setSignupSuccess('Calendar subscription URL copied to clipboard!');
       setTimeout(() => setSignupSuccess(''), 3000);
     } catch (err) {
-      console.error('Failed to copy URL:', err);
+      // Clipboard API may not be available in all browsers
+      setSignupSuccess('Failed to copy URL. Please copy it manually.');
+      setTimeout(() => setSignupSuccess(''), 3000);
     }
   };
 
@@ -124,6 +126,7 @@ function EmployeeDashboard() {
     // Open the URL in a new window to trigger download
     window.open(url, '_blank');
   };
+
 
   if (loading) return <LoadingSpinner />;
 

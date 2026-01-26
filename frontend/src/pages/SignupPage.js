@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Container, Form, Button, Alert, Card } from 'react-bootstrap';
 import { useNavigate, Link } from 'react-router-dom';
+import CryptoJS from 'crypto-js';
 import { authAPI } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 
@@ -37,17 +38,21 @@ function SignupPage() {
     setLoading(true);
 
     try {
+      // Hash password on client side before sending to prevent clear text transmission
+      const hashedPassword = CryptoJS.SHA256(formData.password).toString();
+
       const response = await authAPI.signup({
         firstName: formData.firstName,
         lastName: formData.lastName,
         email: formData.email,
-        password: formData.password,
+        password: hashedPassword,
       });
-      const { token, userId, firstName, lastName } = response.data;
-      login({ userId, email: formData.email, firstName, lastName }, token);
+      const { token, userId, firstName, lastName, firstTimeLogin } = response.data;
+
+      login({ userId, email: formData.email, firstName, lastName }, token, false, firstTimeLogin);
       navigate('/');
     } catch (err) {
-      setError(err.response?.data?.message || 'Signup failed. Please try again.');
+      setError(err.response?.data?.message || 'Signup failed. Please check your information and try again.');
     } finally {
       setLoading(false);
     }

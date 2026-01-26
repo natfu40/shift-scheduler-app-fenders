@@ -4,31 +4,30 @@ import { useAuthStore } from './store/authStore';
 import Navigation from './components/Navigation';
 import ProtectedAdminRoute from './components/ProtectedAdminRoute';
 import LoginPage from './pages/LoginPage';
-import SignupPage from './pages/SignupPage';
 import EmployeeDashboard from './pages/EmployeeDashboard';
-import AdminDashboard from './pages/AdminDashboard';
+import ShiftManagement from './pages/ShiftManagement';
 import UsersPage from './pages/UsersPage';
 import ShiftCalendar from './pages/ShiftCalendar';
 import Audits from './pages/Audits';
 import './App.css';
 
 function App() {
-  const { user } = useAuthStore();
+  const { user, firstTimeLogin } = useAuthStore();
+
 
   return (
     <Router>
       <div className="App">
-        {user && <Navigation />}
+        {user && !firstTimeLogin && <Navigation />}
         <Routes>
-          <Route path="/login" element={!user ? <LoginPage /> : <Navigate to="/" />} />
-          <Route path="/signup" element={!user ? <SignupPage /> : <Navigate to="/" />} />
-          <Route path="/" element={user ? <EmployeeDashboard /> : <Navigate to="/login" />} />
-          <Route path="/calendar" element={user ? <ShiftCalendar /> : <Navigate to="/login" />} />
+          <Route path="/login" element={(!user || firstTimeLogin) ? <LoginPage /> : <Navigate to="/" />} />
+          <Route path="/" element={user && !firstTimeLogin ? <EmployeeDashboard /> : <Navigate to="/login" />} />
+          <Route path="/calendar" element={user && !firstTimeLogin ? <ShiftCalendar /> : <Navigate to="/login" />} />
           <Route
             path="/admin"
             element={
               <ProtectedAdminRoute>
-                <AdminDashboard />
+                <ShiftManagement />
               </ProtectedAdminRoute>
             }
           />

@@ -1,11 +1,12 @@
 import React, { useState, useEffect } from 'react';
 import { Container, Row, Col, Card, Button, Table, Spinner, Alert, Modal, Form } from 'react-bootstrap';
+import CryptoJS from 'crypto-js';
 import { adminAPI, userAPI } from '../api/client';
 import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 
 function UsersPage() {
-  const { user, isAdmin } = useAuthStore();
+  const { isAdmin } = useAuthStore();
   const navigate = useNavigate();
   const [users, setUsers] = useState([]);
   const [loading, setLoading] = useState(true);
@@ -21,6 +22,17 @@ function UsersPage() {
   const [showDeleteModal, setShowDeleteModal] = useState(false);
   const [userToDelete, setUserToDelete] = useState(null);
   const [isDeletingUser, setIsDeletingUser] = useState(false);
+
+  // Add new user modal states
+  const [showAddUserModal, setShowAddUserModal] = useState(false);
+  const [isCreatingUser, setIsCreatingUser] = useState(false);
+  const [newUserData, setNewUserData] = useState({
+    firstName: '',
+    lastName: '',
+    email: '',
+    password: '',
+    confirmPassword: '',
+  });
 
   useEffect(() => {
     // Redirect if not admin
@@ -94,6 +106,70 @@ function UsersPage() {
     setUserToDelete(null);
   };
 
+  const handleOpenAddUserModal = () => {
+    setShowAddUserModal(true);
+  };
+
+  const handleCloseAddUserModal = () => {
+    setShowAddUserModal(false);
+    setNewUserData({
+      firstName: '',
+      lastName: '',
+      email: '',
+      password: '',
+      confirmPassword: '',
+    });
+  };
+
+  const handleNewUserDataChange = (e) => {
+    const { name, value } = e.target;
+    setNewUserData(prev => ({
+      ...prev,
+      [name]: value,
+    }));
+  };
+
+  const handleCreateUser = async (e) => {
+    e.preventDefault();
+
+    if (newUserData.password !== newUserData.confirmPassword) {
+      setError('Passwords do not match');
+      return;
+    }
+
+    if (newUserData.password.length < 6) {
+      setError('Password must be at least 6 characters long');
+      return;
+    }
+
+    setIsCreatingUser(true);
+    try {
+      // Hash password on client side before sending to prevent clear text transmission
+      const hashedPassword = CryptoJS.SHA256(newUserData.password).toString();
+
+      const userData = {
+        firstName: newUserData.firstName,
+        lastName: newUserData.lastName,
+        email: newUserData.email,
+        password: hashedPassword,
+      };
+
+      await userAPI.createUser(userData);
+      setSuccess(`User ${newUserData.firstName} ${newUserData.lastName} has been created successfully. They will need to change their password on first login.`);
+
+      // Refresh users list
+      await fetchUsers();
+
+      handleCloseAddUserModal();
+      setTimeout(() => setSuccess(''), 5000);
+    } catch (err) {
+      console.error('Failed to create user:', err);
+      setError(err.response?.data?.message || 'Failed to create user. Please try again.');
+    } finally {
+      setIsCreatingUser(false);
+    }
+  };
+
   const handleDeleteUser = async () => {
     if (!userToDelete) return;
 
@@ -159,7 +235,12 @@ function UsersPage() {
     <Container className="py-5">
       <Row className="mb-4">
         <Col>
-          <h1>User Management</h1>
+          <div className="d-flex justify-content-between align-items-center">
+            <h1>User Management</h1>
+            <Button variant="success" onClick={handleOpenAddUserModal}>
+              Add New User
+            </Button>
+          </div>
         </Col>
       </Row>
 
@@ -295,6 +376,96 @@ function UsersPage() {
             {isDeletingUser ? 'Deleting...' : 'Delete User'}
           </Button>
         </Modal.Footer>
+      </Modal>
+
+      {/* Add New User Modal */}
+      <Modal show={showAddUserModal} onHide={handleCloseAddUserModal}>
+        <Modal.Header closeButton>
+          <Modal.Title>Add New User</Modal.Title>
+        </Modal.Header>
+        <Form onSubmit={handleCreateUser}>
+          <Modal.Body>
+            <Alert variant="info">
+              The new user will be required to change their password on first login.
+            </Alert>
+
+            <Form.Group className="mb-3">
+              <Form.Label>First Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter first name"
+                name="firstName"
+                value={newUserData.firstName}
+                onChange={handleNewUserDataChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Last Name</Form.Label>
+              <Form.Control
+                type="text"
+                placeholder="Enter last name"
+                name="lastName"
+                value={newUserData.lastName}
+                onChange={handleNewUserDataChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Email</Form.Label>
+              <Form.Control
+                type="email"
+                placeholder="Enter email address"
+                name="email"
+                value={newUserData.email}
+                onChange={handleNewUserDataChange}
+                required
+              />
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Initial Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Enter initial password"
+                name="password"
+                value={newUserData.password}
+                onChange={handleNewUserDataChange}
+                required
+                minLength={6}
+              />
+              <Form.Text className="text-muted">
+                Password must be at least 6 characters long. User will need to change this on first login.
+              </Form.Text>
+            </Form.Group>
+
+            <Form.Group className="mb-3">
+              <Form.Label>Confirm Password</Form.Label>
+              <Form.Control
+                type="password"
+                placeholder="Confirm password"
+                name="confirmPassword"
+                value={newUserData.confirmPassword}
+                onChange={handleNewUserDataChange}
+                required
+              />
+            </Form.Group>
+          </Modal.Body>
+          <Modal.Footer>
+            <Button variant="secondary" onClick={handleCloseAddUserModal} disabled={isCreatingUser}>
+              Cancel
+            </Button>
+            <Button
+              variant="success"
+              type="submit"
+              disabled={isCreatingUser}
+            >
+              {isCreatingUser ? 'Creating User...' : 'Create User'}
+            </Button>
+          </Modal.Footer>
+        </Form>
       </Modal>
     </Container>
   );

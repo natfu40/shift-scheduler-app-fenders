@@ -1,5 +1,6 @@
 package com.shiftscheduler.controller;
 
+import com.shiftscheduler.dto.CreateUserRequest;
 import com.shiftscheduler.dto.UserDTO;
 import com.shiftscheduler.service.UserService;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -23,6 +24,13 @@ public class UserController {
     public ResponseEntity<List<UserDTO>> getAllUsers() {
         List<UserDTO> users = userService.getAllUsers();
         return ResponseEntity.ok(users);
+    }
+
+    @PostMapping
+    @PreAuthorize("hasRole('ADMIN')")
+    public ResponseEntity<UserDTO> createUser(@RequestBody CreateUserRequest createUserRequest) {
+        UserDTO user = userService.createUser(createUserRequest);
+        return new ResponseEntity<>(user, HttpStatus.CREATED);
     }
 
     @DeleteMapping("/{userId}")

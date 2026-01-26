@@ -3,10 +3,9 @@ import { Navigate } from 'react-router-dom';
 import { useAuthStore } from '../store/authStore';
 
 function ProtectedAdminRoute({ children }) {
-  const { user } = useAuthStore();
-  const isAdmin = localStorage.getItem('isAdmin') === 'true';
+  const { user, isAdmin, firstTimeLogin } = useAuthStore();
 
-  if (!user) {
+  if (!user || firstTimeLogin) {
     return <Navigate to="/login" />;
   }
 

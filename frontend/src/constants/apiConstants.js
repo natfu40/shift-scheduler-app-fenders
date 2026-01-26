@@ -16,6 +16,7 @@ export const API_ENDPOINTS = {
   AUTH: {
     SIGNUP: '/auth/signup',
     LOGIN: '/auth/login',
+    CHANGE_PASSWORD: '/auth/change-password',
   },
   SHIFTS: {
     BASE: '/shifts',

@@ -33,6 +33,12 @@ public class User {
     @Column(nullable = false)
     private boolean active = true;
 
+    @Column(name = "first_time_login", nullable = false)
+    private boolean firstTimeLogin = true;
+
+    @Column(name = "password_hash_method", nullable = false)
+    private String passwordHashMethod = "BCRYPT"; // BCRYPT or SHA256_BCRYPT
+
     @Column(name = "created_at", nullable = false, updatable = false)
     private LocalDateTime createdAt;
 

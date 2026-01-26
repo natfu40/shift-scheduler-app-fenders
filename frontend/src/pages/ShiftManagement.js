@@ -5,7 +5,7 @@ import { useAuthStore } from '../store/authStore';
 import { useNavigate } from 'react-router-dom';
 import { format } from 'date-fns';
 
-function AdminDashboard() {
+function ShiftManagement() {
   const { user, isAdmin } = useAuthStore();
   const navigate = useNavigate();
   const [shifts, setShifts] = useState([]);
@@ -755,7 +755,7 @@ function AdminDashboard() {
 
   return (
     <Container className="py-5">
-      <h1 className="mb-4">Admin Dashboard</h1>
+      <h1 className="mb-4">Shift Management</h1>
 
       {error && <Alert variant="danger" onClose={() => setError('')} dismissible>{error}</Alert>}
       {success && <Alert variant="success" onClose={() => setSuccess('')} dismissible>{success}</Alert>}
@@ -1337,5 +1337,5 @@ function AdminDashboard() {
   );
 }
 
-export default AdminDashboard;
+export default ShiftManagement;
 

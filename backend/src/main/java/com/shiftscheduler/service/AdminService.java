@@ -72,9 +72,20 @@ public class AdminService {
     }
 
     public boolean isUserAdmin(Long userId) {
+        System.out.println("AdminService.isUserAdmin called for userId: " + userId);
+
         List<UserRole> userRoles = userRoleRepository.findByUserId(userId);
-        return userRoles.stream()
+        System.out.println("Found " + userRoles.size() + " roles for user " + userId);
+
+        for (UserRole ur : userRoles) {
+            System.out.println("User " + userId + " has role: " + ur.getRole().getName());
+        }
+
+        boolean isAdmin = userRoles.stream()
                 .anyMatch(ur -> ur.getRole().getName().equals("ADMIN"));
+
+        System.out.println("AdminService.isUserAdmin result for userId " + userId + ": " + isAdmin);
+        return isAdmin;
     }
 }
 
