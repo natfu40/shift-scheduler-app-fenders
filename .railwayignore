@@ -1,0 +1,3 @@
+# Railway ignore file - excludes files from deployment
+backend/Dockerfile.backup
+backend/Dockerfile
