@@ -31,8 +31,20 @@ public class AuthController {
         return ResponseEntity.ok(response);
     }
 
+    @PostMapping("/login-hashed")
+    public ResponseEntity<AuthResponse> loginHashed(@RequestBody LoginRequest loginRequest) {
+        AuthResponse response = authService.loginWithHashedPassword(loginRequest);
+        return ResponseEntity.ok(response);
+    }
+
     @PostMapping("/change-password")
     public ResponseEntity<String> changePasswordHashed(@RequestBody ChangePasswordHashedRequest changePasswordRequest, Authentication authentication) {
+        authService.changePasswordHashed(changePasswordRequest, authentication.getName());
+        return ResponseEntity.ok("Password changed successfully");
+    }
+
+    @PostMapping("/change-password-hashed")
+    public ResponseEntity<String> changePasswordHashedAlias(@RequestBody ChangePasswordHashedRequest changePasswordRequest, Authentication authentication) {
         authService.changePasswordHashed(changePasswordRequest, authentication.getName());
         return ResponseEntity.ok("Password changed successfully");
     }
