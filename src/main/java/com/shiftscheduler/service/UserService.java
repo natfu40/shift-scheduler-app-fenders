@@ -6,6 +6,7 @@ import com.shiftscheduler.dto.UserDTO;
 import com.shiftscheduler.exception.ResourceNotFoundException;
 import com.shiftscheduler.mapper.DTOMapper;
 import com.shiftscheduler.model.User;
+import com.shiftscheduler.model.UserRole;
 import com.shiftscheduler.repository.AuditLogRepository;
 import com.shiftscheduler.repository.ShiftAssignmentRepository;
 import com.shiftscheduler.repository.UserRepository;
@@ -114,6 +115,10 @@ public class UserService {
 
         // Finally, delete the user
         userRepository.deleteById(userId);
+    }
+
+    public boolean isAdmin(Long userId) {
+        return userRoleRepository.isUserAdmin(userId);
     }
 }
 

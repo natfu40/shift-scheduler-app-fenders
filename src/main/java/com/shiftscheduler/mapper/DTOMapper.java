@@ -6,17 +6,24 @@ import com.shiftscheduler.dto.UserDTO;
 import com.shiftscheduler.model.Shift;
 import com.shiftscheduler.model.ShiftAssignment;
 import com.shiftscheduler.model.User;
+import org.springframework.beans.factory.annotation.Autowired;
+import org.springframework.context.annotation.Lazy;
 import org.springframework.stereotype.Component;
 
 @Component
 public class DTOMapper {
+
+    @Autowired
+    @Lazy
+    private com.shiftscheduler.service.UserService userService;
 
     public UserDTO toUserDTO(User user) {
         return new UserDTO(
                 user.getId(),
                 user.getEmail(),
                 user.getFirstName(),
-                user.getLastName()
+                user.getLastName(),
+                userService.isAdmin(user.getId())
         );
     }
 

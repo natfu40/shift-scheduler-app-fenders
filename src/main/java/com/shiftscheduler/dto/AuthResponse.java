@@ -15,5 +15,6 @@ public class AuthResponse {
     private String firstName;
     private String lastName;
     private boolean firstTimeLogin;
+    private boolean isAdmin;
 }
 

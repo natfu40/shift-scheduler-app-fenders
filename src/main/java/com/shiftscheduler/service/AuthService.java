@@ -7,6 +7,7 @@ import com.shiftscheduler.dto.SignupRequest;
 import com.shiftscheduler.exception.ResourceNotFoundException;
 import com.shiftscheduler.model.User;
 import com.shiftscheduler.repository.UserRepository;
+import com.shiftscheduler.repository.UserRoleRepository;
 import com.shiftscheduler.security.JwtTokenProvider;
 import com.shiftscheduler.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
@@ -25,6 +26,7 @@ public class AuthService {
     private final PasswordEncoder passwordEncoder;
     private final JwtTokenProvider tokenProvider;
     private final AuditLogService auditLogService;
+    private final UserRoleRepository userRoleRepository;
 
     @Transactional
     public AuthResponse signup(SignupRequest signupRequest) {
@@ -73,7 +75,8 @@ public class AuthService {
                 user.getEmail(),
                 user.getFirstName(),
                 user.getLastName(),
-                user.isFirstTimeLogin()
+                user.isFirstTimeLogin(),
+                userRoleRepository.isUserAdmin(user.getId())
         );
     }
 
