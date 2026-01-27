@@ -1,18 +1,15 @@
 package com.shiftscheduler.service;
 
-import com.shiftscheduler.dto.ChangePasswordRequest;
+import com.shiftscheduler.dto.AuthResponse;
 import com.shiftscheduler.dto.ChangePasswordHashedRequest;
 import com.shiftscheduler.dto.LoginRequest;
 import com.shiftscheduler.dto.SignupRequest;
-import com.shiftscheduler.dto.AuthResponse;
 import com.shiftscheduler.exception.ResourceNotFoundException;
 import com.shiftscheduler.model.User;
 import com.shiftscheduler.repository.UserRepository;
 import com.shiftscheduler.security.JwtTokenProvider;
 import com.shiftscheduler.security.UserPrincipal;
-import com.shiftscheduler.util.PasswordHashUtil;
 import lombok.RequiredArgsConstructor;
-import org.springframework.security.authentication.AuthenticationManager;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -26,7 +23,6 @@ public class AuthService {
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
-    private final AuthenticationManager authenticationManager;
     private final JwtTokenProvider tokenProvider;
     private final AuditLogService auditLogService;
 
@@ -42,34 +38,9 @@ public class AuthService {
         auditLogService.logAction(user, "SIGNUP", "User", user.getId(),
                 "User registered with email: " + user.getEmail());
 
-        return login(new LoginRequest(signupRequest.getEmail(), signupRequest.getPassword()));
+        return loginWithHashedPassword(new LoginRequest(signupRequest.getEmail(), signupRequest.getPassword()));
     }
 
-    public AuthResponse login(LoginRequest loginRequest) {
-        Authentication authentication = authenticationManager.authenticate(
-                new UsernamePasswordAuthenticationToken(
-                        loginRequest.getEmail(),
-                        loginRequest.getPassword()
-                )
-        );
-
-        String token = tokenProvider.generateToken(authentication);
-        UserPrincipal userPrincipal = (UserPrincipal) authentication.getPrincipal();
-        User user = userRepository.findById(userPrincipal.getId())
-                .orElseThrow(() -> ResourceNotFoundException.user(userPrincipal.getId()));
-
-        auditLogService.logAction(user, "LOGIN", "User", user.getId(), "User logged in");
-
-        return new AuthResponse(
-                token,
-                "Bearer",
-                userPrincipal.getId(),
-                userPrincipal.getEmail(),
-                user.getFirstName(),
-                user.getLastName(),
-                user.isFirstTimeLogin()
-        );
-    }
 
     @Transactional
     public AuthResponse loginWithHashedPassword(LoginRequest loginRequest) {
@@ -106,30 +77,13 @@ public class AuthService {
         );
     }
 
-    @Transactional
-    public void changePassword(ChangePasswordRequest changePasswordRequest, String userEmail) {
-        User user = userRepository.findByEmail(userEmail)
-                .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
-
-        // Verify current password
-        if (!passwordEncoder.matches(changePasswordRequest.getCurrentPassword(), user.getPassword())) {
-            throw new BadCredentialsException("Current password is incorrect");
-        }
-
-        // Update password and mark as no longer first-time login
-        user.setPassword(passwordEncoder.encode(changePasswordRequest.getNewPassword()));
-        user.setFirstTimeLogin(false);
-        userRepository.save(user);
-
-        auditLogService.logAction(user, "PASSWORD_CHANGE", "User", user.getId(), "Password changed");
-    }
 
     @Transactional
     public void changePasswordHashed(ChangePasswordHashedRequest changePasswordRequest, String userEmail) {
         User user = userRepository.findByEmail(userEmail)
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + userEmail));
 
-        boolean currentPasswordMatches = false;
+        boolean currentPasswordMatches;
 
         // Verify current password based on storage method
         if ("SHA256_BCRYPT".equals(user.getPasswordHashMethod())) {
