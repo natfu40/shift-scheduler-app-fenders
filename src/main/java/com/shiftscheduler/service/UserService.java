@@ -1,7 +1,9 @@
 package com.shiftscheduler.service;
 
 import com.shiftscheduler.dto.CreateUserRequest;
+import com.shiftscheduler.dto.UpdateUserRequest;
 import com.shiftscheduler.dto.UserDTO;
+import com.shiftscheduler.exception.ResourceNotFoundException;
 import com.shiftscheduler.mapper.DTOMapper;
 import com.shiftscheduler.model.User;
 import com.shiftscheduler.repository.AuditLogRepository;
@@ -34,6 +36,12 @@ public class UserService {
                 .collect(Collectors.toList());
     }
 
+    public UserDTO getUserById(Long userId) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+        return dtoMapper.toUserDTO(user);
+    }
+
     @Transactional
     public UserDTO createUser(CreateUserRequest createUserRequest) {
         if (userRepository.existsByEmail(createUserRequest.getEmail())) {
@@ -56,6 +64,41 @@ public class UserService {
                 "User created by admin with email: " + savedUser.getEmail());
 
         return dtoMapper.toUserDTO(savedUser);
+    }
+
+    @Transactional
+    public UserDTO updateUser(Long userId, UpdateUserRequest updateRequest) {
+        User user = userRepository.findById(userId)
+                .orElseThrow(() -> new ResourceNotFoundException("User not found with id: " + userId));
+
+        // Update fields if provided
+        if (updateRequest.getEmail() != null) {
+            // Check if email is already taken by another user
+            if (!user.getEmail().equals(updateRequest.getEmail()) &&
+                userRepository.existsByEmail(updateRequest.getEmail())) {
+                throw new IllegalArgumentException("Email already exists");
+            }
+            user.setEmail(updateRequest.getEmail());
+        }
+
+        if (updateRequest.getFirstName() != null) {
+            user.setFirstName(updateRequest.getFirstName());
+        }
+
+        if (updateRequest.getLastName() != null) {
+            user.setLastName(updateRequest.getLastName());
+        }
+
+        if (updateRequest.getActive() != null) {
+            user.setActive(updateRequest.getActive());
+        }
+
+        User updatedUser = userRepository.save(user);
+
+        auditLogService.logAction(updatedUser, "USER_UPDATED", "User", updatedUser.getId(),
+                "User profile updated: " + updatedUser.getEmail());
+
+        return dtoMapper.toUserDTO(updatedUser);
     }
 
     @Transactional
