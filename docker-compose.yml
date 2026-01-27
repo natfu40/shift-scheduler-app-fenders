@@ -40,17 +40,23 @@ services:
       timeout: 10s
       retries: 3
 
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile
-    ports:
-      - "${FRONTEND_PORT:-3000}:3000"
-    environment:
-      REACT_APP_API_URL: ${REACT_APP_API_URL:-http://localhost:8080}
-    depends_on:
-      - backend
-    restart: unless-stopped
+  # Frontend service - now in separate repository
+  # To run frontend with backend:
+  # 1. Clone frontend repo: git clone <frontend-repo-url> ../shift-scheduler-frontend
+  # 2. Uncomment the section below
+  # 3. Run: docker-compose up
+  #
+  # frontend:
+  #   build:
+  #     context: ../shift-scheduler-frontend
+  #     dockerfile: Dockerfile
+  #   ports:
+  #     - "${FRONTEND_PORT:-3000}:3000"
+  #   environment:
+  #     REACT_APP_API_URL: http://localhost:8080
+  #   depends_on:
+  #     - backend
+  #   restart: unless-stopped
 
 volumes:
   postgres_data:
