@@ -21,12 +21,8 @@ Spring Boot backend API for the Shift Scheduler application.
 
 2. **Run the application:**
    ```bash
-   # From backend directory
-   cd backend
+   # From root directory
    mvn spring-boot:run
-   
-   # Or from root directory
-   mvn spring-boot:run -pl backend
    ```
    
    API will be available at `http://localhost:8080`
@@ -71,7 +67,7 @@ This repository is configured for Railway deployment:
 ## 📁 Project Structure
 
 ```
-backend/
+shift-scheduler/
 ├── src/main/java/com/shiftscheduler/
 │   ├── controller/          # REST API controllers
 │   ├── service/            # Business logic services
@@ -85,7 +81,10 @@ backend/
 │   ├── application-dev.properties          # Development settings
 │   ├── application-prod.properties         # Production settings
 │   └── application-railway.properties      # Railway deployment
-└── pom.xml                 # Maven dependencies
+├── docs/                   # Documentation
+├── pom.xml                 # Maven dependencies
+├── Dockerfile              # Container configuration
+└── railway.json            # Railway deployment settings
 ```
 
 ## 🔧 API Features

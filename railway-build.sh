@@ -8,9 +8,9 @@ echo "Maven version:"
 mvn -version
 
 echo "Building project with Maven..."
-mvn clean package -DskipTests -pl backend -am -B
+mvn clean package -DskipTests -B
 
 echo "Checking for built JAR file..."
-ls -la backend/target/
+ls -la target/
 
 echo "Build completed successfully!"

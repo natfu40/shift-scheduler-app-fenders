@@ -5,9 +5,9 @@ set -e
 
 echo "Building Shift Scheduler Backend..."
 
-# Clean and build the application using Maven modules
+# Clean and build the application using Maven
 echo "Running Maven build..."
-mvn clean package -DskipTests -pl backend -am -Dmaven.compiler.source=17 -Dmaven.compiler.target=17
+mvn clean package -DskipTests -Dmaven.compiler.source=17 -Dmaven.compiler.target=17
 
 echo "Build completed successfully!"
-echo "JAR file location: backend/target/shift-scheduler-backend-1.0.0.jar"
+echo "JAR file location: target/shift-scheduler-backend-1.0.0.jar"

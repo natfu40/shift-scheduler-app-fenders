@@ -3,8 +3,8 @@
 nixPkgs = ['maven', 'openjdk17']
 
 [phases.build]
-cmd = 'mvn clean package -DskipTests -pl backend -am && echo "Build completed - checking for JAR:" && ls -la backend/target/'
+cmd = 'mvn clean package -DskipTests -B && echo "Build completed - checking for JAR:" && ls -la target/'
 
 [phases.start]
-cmd = 'java -server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -jar backend/target/shift-scheduler-backend-1.0.0.jar --spring.profiles.active=railway'
+cmd = 'java -server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -jar target/shift-scheduler-backend-1.0.0.jar --spring.profiles.active=railway'
 
