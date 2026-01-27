@@ -67,7 +67,7 @@ This repository is configured for Railway deployment:
 ## 📁 Project Structure
 
 ```
-shift-scheduler/
+shift-scheduler-backend/
 ├── src/main/java/com/shiftscheduler/
 │   ├── controller/          # REST API controllers
 │   ├── service/            # Business logic services

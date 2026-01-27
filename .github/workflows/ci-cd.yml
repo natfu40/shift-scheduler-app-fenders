@@ -52,6 +52,5 @@ jobs:
 
     - name: Build Docker images
       run: |
-        docker build -t shift-scheduler-backend ./backend
-        docker build -t shift-scheduler-frontend ./frontend
+        docker build -t shift-scheduler-backend .
 
