@@ -37,13 +37,17 @@ The Fenders Brewing Scheduler is a modern, secure web application built with Rea
 
 Choose your documentation based on your role:
 
+### For Users
 - **[Employee User Guide](./USER_GUIDE.md)** - Complete guide for regular employees
 - **[Administrator Guide](./ADMIN_GUIDE.md)** - Comprehensive admin documentation
-- **[Installation Guide](./INSTALLATION.md)** - Setup and deployment instructions
-- **[Railway Deployment Guide](./RAILWAY_DEPLOYMENT.md)** - Quick cloud deployment with Railway
-- **[PostgreSQL Setup Guide](./POSTGRESQL_SETUP.md)** - Local PostgreSQL installation
-- **[PostgreSQL Migration Guide](./POSTGRESQL_MIGRATION.md)** - Migration from MariaDB details
-- **[Password Change Feature](./PASSWORD_CHANGE_FEATURE.md)** - User password management
+
+### For Developers
+- **[Installation Guide](./INSTALLATION.md)** - Local setup and development
+- **[Project Structure Guide](./PROJECT_STRUCTURE.md)** - Repository organization
+
+### For Deployment
+- **[Railway Deployment Guide](./RAILWAY_DEPLOYMENT.md)** - Cloud deployment with Railway
+- **[Production Deployment Guide](./PRODUCTION_README.md)** - Docker production deployment
 
 ## 🚀 Quick Start
 
@@ -51,7 +55,6 @@ Choose your documentation based on your role:
 2. **For Admins**: See the [Administrator Guide](./ADMIN_GUIDE.md)  
 3. **For Setup**: See the [Installation Guide](./INSTALLATION.md)
 4. **For Cloud Deployment**: See the [Railway Deployment Guide](./RAILWAY_DEPLOYMENT.md)
-5. **For PostgreSQL Setup**: See the [PostgreSQL Setup Guide](./POSTGRESQL_SETUP.md)
 
 ## 🔐 Default Login
 

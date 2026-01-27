@@ -14,7 +14,7 @@ Spring Boot backend API for the Shift Scheduler application.
 1. **Start PostgreSQL:**
    ```bash
    # Using Docker
-   docker-compose up postgres -d
+   docker-compose -f deployment/docker-compose.yml up postgres -d
    
    # Or install PostgreSQL locally and create database 'shift_scheduler'
    ```
@@ -32,7 +32,7 @@ Spring Boot backend API for the Shift Scheduler application.
 ### Backend + Database
 ```bash
 # Start backend and PostgreSQL
-docker-compose up -d
+docker-compose -f deployment/docker-compose.yml up -d
 
 # Backend API: http://localhost:8080
 # Database: localhost:5432
@@ -43,21 +43,25 @@ docker-compose up -d
 # 1. Clone frontend repository
 git clone <frontend-repo-url> ../shift-scheduler-frontend
 
-# 2. Uncomment frontend service in docker-compose.yml
+# 2. Uncomment frontend service in deployment/docker-compose.yml
 
 # 3. Start all services
-docker-compose up -d
+docker-compose -f deployment/docker-compose.yml up -d
 ```
 
 ## 🚀 Production Deployment
 
 ### Railway Deployment
-This repository is configured for Railway deployment:
+This repository is configured for Railway deployment. See [Railway Deployment Guide](docs/RAILWAY_DEPLOYMENT.md) for details.
 
+**Quick steps:**
 1. **Connect to Railway** from GitHub
 2. **Add PostgreSQL service** in Railway dashboard
 3. **Set environment variable:** `JWT_SECRET=your-secure-secret`
 4. **Deploy automatically** from main branch
+
+### Docker Production
+See [Production Deployment Guide](docs/PRODUCTION_README.md) for complete Docker production setup.
 
 ### Environment Variables
 - `JWT_SECRET` - JWT signing secret (required)
@@ -81,10 +85,24 @@ shift-scheduler-backend/
 │   ├── application-dev.properties          # Development settings
 │   ├── application-prod.properties         # Production settings
 │   └── application-railway.properties      # Railway deployment
+├── deployment/             # Deployment configurations
+│   ├── docker-compose.yml          # Docker development setup
+│   ├── docker-compose.prod.yml     # Docker production setup
+│   ├── Dockerfile                  # Container configuration
+│   ├── railway.json                # Railway deployment config
+│   └── nixpacks.toml               # Nixpacks configuration
+├── scripts/                # Build and deployment scripts
+│   ├── build.sh                    # General build script
+│   ├── start.sh                    # General start script
+│   ├── railway-build.sh            # Railway build script
+│   └── railway-start.sh            # Railway start script
 ├── docs/                   # Documentation
-├── pom.xml                 # Maven dependencies
-├── Dockerfile              # Container configuration
-└── railway.json            # Railway deployment settings
+│   ├── RAILWAY_DEPLOYMENT.md       # Railway deployment guide
+│   ├── PRODUCTION_README.md        # Production deployment guide
+│   ├── INSTALLATION.md             # Installation guide
+│   ├── USER_GUIDE.md               # User documentation
+│   └── ADMIN_GUIDE.md              # Admin documentation
+└── pom.xml                 # Maven dependencies
 ```
 
 ## 🔧 API Features
@@ -107,6 +125,22 @@ shift-scheduler-backend/
 
 ### Monitoring
 - **GET** `/actuator/health` - Health check endpoint
+
+## 📖 Documentation
+
+For detailed documentation, see the [docs/](docs/) directory:
+
+### For Users
+- **[User Guide](docs/USER_GUIDE.md)** - End-user documentation
+- **[Admin Guide](docs/ADMIN_GUIDE.md)** - Administrator documentation
+
+### For Developers  
+- **[Installation Guide](docs/INSTALLATION.md)** - Complete setup instructions
+- **[Project Structure](docs/PROJECT_STRUCTURE.md)** - Repository organization guide
+
+### For Deployment
+- **[Railway Deployment](docs/RAILWAY_DEPLOYMENT.md)** - Railway deployment guide
+- **[Production Deployment](docs/PRODUCTION_README.md)** - Docker production guide
 
 ## 🛠 Development
 

@@ -1,3 +1,5 @@
 # Railway ignore file - excludes files from deployment
-backend/Dockerfile.backup
-backend/Dockerfile
+docs/
+scripts/
+deployment/docker-compose*.yml
+*.backup
