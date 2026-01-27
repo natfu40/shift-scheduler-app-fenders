@@ -11,6 +11,8 @@
     "healthcheckTimeout": 300
   },
   "variables": {
+    "NIXPACKS_BUILD_CMD": "./railway-build.sh",
+    "NIXPACKS_START_CMD": "./railway-start.sh",
     "SPRING_PROFILES_ACTIVE": "railway"
   }
 }

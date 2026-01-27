@@ -3,27 +3,8 @@
 nixPkgs = ['maven', 'openjdk17']
 
 [phases.build]
-cmds = [
-    'echo "Java version:"',
-    'java -version',
-    'echo "Maven version:"',
-    'mvn -version',
-    'echo "Current directory and contents:"',
-    'pwd && ls -la',
-    'echo "Building backend module..."',
-    'cd backend',
-    'echo "In backend directory:"',
-    'pwd && ls -la',
-    'mvn clean package -DskipTests -B',
-    'echo "Build completed. Checking for JAR file in backend/target:"',
-    'ls -la target/',
-    'echo "JAR files found:"',
-    'find target -name "*.jar" -not -name "*sources.jar" -not -name "*javadoc.jar"',
-    'cd ..',
-    'echo "Back in root directory, checking backend/target:"',
-    'ls -la backend/target/'
-]
+cmd = 'mvn clean package -DskipTests -pl backend -am && echo "Build completed - checking for JAR:" && ls -la backend/target/'
 
 [phases.start]
-cmd = 'echo "Starting application from root directory..." && cd backend && JAR_FILE=$(find target -name "*.jar" -not -name "*sources.jar" -not -name "*javadoc.jar" | head -1) && echo "Found JAR: $JAR_FILE" && java -server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -jar "$JAR_FILE" --spring.profiles.active=railway'
+cmd = 'java -server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -jar backend/target/shift-scheduler-backend-1.0.0.jar --spring.profiles.active=railway'
 
