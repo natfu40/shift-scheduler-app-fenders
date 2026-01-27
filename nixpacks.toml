@@ -1,14 +1,17 @@
 # Railway Nixpacks configuration for Java Spring Boot backend
 [phases.setup]
-nixPkgs = ['maven', 'openjdk21']
+nixPkgs = ['maven', 'openjdk17']
 
 [phases.build]
 cmds = [
-    'mvn clean package -DskipTests -pl backend -am -Dmaven.compiler.source=21 -Dmaven.compiler.target=21'
+    'echo "Java version:"',
+    'java -version',
+    'echo "Maven version:"',
+    'mvn -version',
+    'echo "Building project..."',
+    'mvn clean package -DskipTests -pl backend -am -B'
 ]
 
 [phases.start]
 cmd = 'java -server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -jar backend/target/shift-scheduler-backend-1.0.0.jar --spring.profiles.active=railway'
 
-[variables]
-PORT = '8080'
