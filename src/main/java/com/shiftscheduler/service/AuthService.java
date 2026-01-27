@@ -76,19 +76,13 @@ public class AuthService {
         User user = userRepository.findByEmail(loginRequest.getEmail())
                 .orElseThrow(() -> new ResourceNotFoundException("User not found with email: " + loginRequest.getEmail()));
 
-        boolean passwordMatches = false;
-
-        // Check password based on storage method
-        if ("SHA256_BCRYPT".equals(user.getPasswordHashMethod())) {
-            // Password was stored as bcrypt(sha256(originalPassword))
-            passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
-        } else {
-            // Legacy user with BCRYPT storage - need to migrate
-            // The frontend sent SHA256(originalPassword), but user has bcrypt(originalPassword)
-            // We need to check if the original password would generate the same SHA256 hash
-            // This is complex, so for now we'll create an error asking user to reset password
-            throw new BadCredentialsException("Account needs password migration. Please contact administrator.");
+        // All users should use SHA256_BCRYPT method (frontend sends SHA256, backend stores BCrypt(SHA256))
+        if (!"SHA256_BCRYPT".equals(user.getPasswordHashMethod())) {
+            throw new BadCredentialsException("User account uses incompatible password method. Please contact administrator.");
         }
+
+        // Compare frontend SHA256 hash with stored BCrypt(SHA256) hash
+        boolean passwordMatches = passwordEncoder.matches(loginRequest.getPassword(), user.getPassword());
 
         if (!passwordMatches) {
             throw new BadCredentialsException("Invalid credentials");
