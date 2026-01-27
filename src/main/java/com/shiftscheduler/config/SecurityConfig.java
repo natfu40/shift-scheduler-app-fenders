@@ -21,6 +21,7 @@ import org.springframework.web.cors.CorsConfigurationSource;
 import org.springframework.web.cors.UrlBasedCorsConfigurationSource;
 
 import java.util.Arrays;
+import java.util.List;
 
 @Configuration
 @EnableWebSecurity
@@ -55,8 +56,8 @@ public class SecurityConfig {
             // Production: Use environment-specified origins
             configuration.setAllowedOrigins(Arrays.asList(allowedOrigins.split(",")));
         } else {
-            // Development: Use localhost defaults
-            configuration.setAllowedOrigins(Arrays.asList("http://localhost:3000", "http://localhost:8080"));
+            // Default: Allow all origins (can be restricted later with ALLOWED_ORIGINS env var)
+            configuration.setAllowedOriginPatterns(List.of("*"));
         }
 
         configuration.setAllowedMethods(Arrays.asList("GET", "POST", "PUT", "DELETE", "OPTIONS"));
@@ -79,6 +80,7 @@ public class SecurityConfig {
                         sessionManagement.sessionCreationPolicy(SessionCreationPolicy.STATELESS)
                 )
                 .authorizeHttpRequests(authorize -> authorize
+                        .requestMatchers(HttpMethod.OPTIONS, "/**").permitAll()  // Allow CORS preflight requests
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/shifts/available").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/shifts/**").permitAll()
