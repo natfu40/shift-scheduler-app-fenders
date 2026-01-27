@@ -9,9 +9,21 @@ cmds = [
     'echo "Maven version:"',
     'mvn -version',
     'echo "Building project..."',
-    'mvn clean package -DskipTests -pl backend -am -B'
+    'echo "Current directory:"',
+    'pwd',
+    'ls -la',
+    'echo "Building backend module..."',
+    'cd backend && mvn clean package -DskipTests -B',
+    'echo "Build completed. Checking for JAR file:"',
+    'ls -la target/',
+    'echo "Back to root directory:"',
+    'cd .. && pwd',
+    'echo "Checking backend/target from root:"',
+    'ls -la backend/target/',
+    'echo "Finding all JAR files:"',
+    'find . -name "*.jar" -type f'
 ]
 
 [phases.start]
-cmd = 'java -server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -jar backend/target/shift-scheduler-backend-1.0.0.jar --spring.profiles.active=railway'
+cmd = 'echo "Starting application..." && echo "Checking backend/target directory:" && ls -la backend/target/ && echo "Looking for JAR file..." && JAR_FILE=$(find backend/target -name "*.jar" -not -name "*sources.jar" -not -name "*javadoc.jar" | head -1) && echo "Found JAR: $JAR_FILE" && java -server -XX:+UseContainerSupport -XX:MaxRAMPercentage=75.0 -XX:+UseG1GC -Djava.security.egd=file:/dev/./urandom -jar "$JAR_FILE" --spring.profiles.active=railway'
 

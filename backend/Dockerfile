@@ -1,5 +1,5 @@
 # Multi-stage build for production optimization
-FROM maven:3.9-amazoncorretto-21 AS builder
+FROM maven:3.9-amazoncorretto-17 AS builder
 
 WORKDIR /app
 
@@ -14,7 +14,7 @@ COPY backend/src src
 RUN mvn clean package -DskipTests -B
 
 # Production runtime image
-FROM amazoncorretto:21-alpine
+FROM amazoncorretto:17-alpine
 
 # Create non-root user for security
 RUN addgroup -g 1001 -S appuser && \
