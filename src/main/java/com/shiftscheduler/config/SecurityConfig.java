@@ -82,6 +82,8 @@ public class SecurityConfig {
                         .requestMatchers("/api/auth/**").permitAll()
                         .requestMatchers("/api/shifts/available").permitAll()
                         .requestMatchers(HttpMethod.GET, "/api/shifts/**").permitAll()
+                        .requestMatchers("/actuator/**").permitAll()  // Allow health checks and actuator endpoints
+                        .requestMatchers("/health", "/ping").permitAll()  // Allow simple health endpoints
                         .anyRequest().authenticated()
                 )
                 .cors(cors -> cors.configurationSource(corsConfigurationSource()));
