@@ -11,6 +11,8 @@ import com.shiftscheduler.repository.UserRoleRepository;
 import com.shiftscheduler.security.JwtTokenProvider;
 import com.shiftscheduler.security.UserPrincipal;
 import lombok.RequiredArgsConstructor;
+import org.slf4j.Logger;
+import org.slf4j.LoggerFactory;
 import org.springframework.security.authentication.BadCredentialsException;
 import org.springframework.security.authentication.UsernamePasswordAuthenticationToken;
 import org.springframework.security.core.Authentication;
@@ -21,6 +23,8 @@ import org.springframework.transaction.annotation.Transactional;
 @Service
 @RequiredArgsConstructor
 public class AuthService {
+
+    private static final Logger logger = LoggerFactory.getLogger(AuthService.class);
 
     private final UserRepository userRepository;
     private final PasswordEncoder passwordEncoder;
@@ -68,6 +72,9 @@ public class AuthService {
 
         auditLogService.logAction(user, "LOGIN", "User", user.getId(), "User logged in (hashed)");
 
+        boolean isAdmin = userRoleRepository.isUserAdmin(user.getId());
+        logger.info("Login for user {}: isAdmin = {}", user.getEmail(), isAdmin);
+
         return new AuthResponse(
                 token,
                 "Bearer",
@@ -76,7 +83,7 @@ public class AuthService {
                 user.getFirstName(),
                 user.getLastName(),
                 user.isFirstTimeLogin(),
-                userRoleRepository.isUserAdmin(user.getId())
+                isAdmin
         );
     }
 
