@@ -44,6 +44,14 @@ jobs:
         ls -la target/ || true
         echo "Contents of surefire-reports directory:"
         ls -la target/surefire-reports/ || true
+        echo "Specifically looking for XML files:"
+        find target/surefire-reports -name "*.xml" -type f || true
+        echo "Count of TEST-*.xml files:"
+        find target/surefire-reports -name "TEST-*.xml" -type f | wc -l || true
+        echo "Working directory:"
+        pwd
+        echo "Full path check:"
+        ls -la target/surefire-reports/TEST-*.xml || echo "No TEST-*.xml files found"
 
     - name: Upload test results
       uses: actions/upload-artifact@v4
@@ -55,12 +63,11 @@ jobs:
           target/site/jacoco/
 
     - name: Publish Test Results
-      uses: dorny/test-reporter@v1
-      if: always()
+      uses: EnricoMi/publish-unit-test-result-action@v2
+      if: success() || failure()
       with:
-        name: Maven Tests
-        path: 'target/surefire-reports/TEST-*.xml'
-        reporter: java-junit
+        files: target/surefire-reports/TEST-*.xml
+        check_name: Maven Tests
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
