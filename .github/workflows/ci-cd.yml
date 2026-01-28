@@ -73,7 +73,7 @@ jobs:
         echo "Attempting full test run with test profile..."
         mvn test -Dspring.profiles.active=test -Dmaven.test.failure.ignore=true -Dsurefire.reportFormat=xml -DforkCount=1 -DreuseForks=false || {
           echo "Full test run failed, trying with minimal setup..."
-          
+
           # Second try: Use H2 in-memory database only, disable parallel execution
           mvn test -Dspring.profiles.active=test \
             -Dspring.datasource.url=jdbc:h2:mem:testdb \
@@ -83,7 +83,7 @@ jobs:
             -DreuseForks=false \
             -Djunit.jupiter.execution.parallel.enabled=false || {
             echo "Second test run failed, trying with system properties override..."
-            
+
             # Third try: Override all problematic properties and force report generation
             mvn test -Dspring.profiles.active=test \
               -Dspring.datasource.url=jdbc:h2:mem:testdb \
@@ -96,7 +96,7 @@ jobs:
               -DreuseForks=false \
               -Dsurefire.useFile=true || {
               echo "All test attempts failed, checking what was generated..."
-              
+
               # Last try: Force create basic reports structure
               mkdir -p target/surefire-reports || true
               echo "Created surefire-reports directory manually"
@@ -131,9 +131,6 @@ jobs:
           fi
         fi
 
-    - name: Build application
-      run: mvn clean package -DskipTests
-
     - name: List test report files (debug)
       if: always()
       run: |
@@ -155,6 +152,20 @@ jobs:
           find target/surefire-reports -name "TEST-*.xml" -type f | head -5
         else
           echo "No XML test reports found - Maven test execution may have failed"
+        fi
+
+    - name: Build application
+      run: mvn package -DskipTests
+
+    - name: Verify test reports after build
+      if: always()
+      run: |
+        echo "Verifying test reports are preserved after build..."
+        if [ -d "target/surefire-reports" ]; then
+          xml_count=$(find target/surefire-reports -name "TEST-*.xml" -type f 2>/dev/null | wc -l)
+          echo "✅ SUCCESS: Found $xml_count XML test reports after build"
+        else
+          echo "❌ ERROR: Test reports directory missing after build - this should not happen!"
         fi
 
     - name: Verify test reports for publishing
