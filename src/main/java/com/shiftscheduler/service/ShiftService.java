@@ -19,6 +19,7 @@ import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
 import java.time.LocalDateTime;
+import java.util.Collections;
 import java.util.List;
 import java.util.stream.Collectors;
 
@@ -167,6 +168,12 @@ public class ShiftService {
     private Page<ShiftDTO> createPageFromList(List<ShiftDTO> items, Pageable pageable) {
         int start = (int) pageable.getOffset();
         int end = Math.min(start + pageable.getPageSize(), items.size());
+
+        // Handle edge case where start index is beyond available data
+        if (start >= items.size()) {
+            return new PageImpl<>(Collections.emptyList(), pageable, items.size());
+        }
+
         List<ShiftDTO> paginatedItems = items.subList(start, end);
         return new PageImpl<>(paginatedItems, pageable, items.size());
     }

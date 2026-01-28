@@ -8,7 +8,7 @@ import com.shiftscheduler.repository.RoleRepository;
 import com.shiftscheduler.repository.UserRepository;
 import com.shiftscheduler.repository.UserRoleRepository;
 import com.shiftscheduler.util.PasswordHashUtil;
-import org.springframework.beans.factory.annotation.Autowired;
+import lombok.RequiredArgsConstructor;
 import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.security.crypto.password.PasswordEncoder;
@@ -20,19 +20,13 @@ import java.util.Optional;
 @RestController
 @RequestMapping("/api/secure-admin")
 @CrossOrigin(origins = "*", maxAge = 3600)
+@RequiredArgsConstructor
 public class SecureAdminController {
 
-    @Autowired
-    private UserRepository userRepository;
-
-    @Autowired
-    private RoleRepository roleRepository;
-
-    @Autowired
-    private UserRoleRepository userRoleRepository;
-
-    @Autowired
-    private PasswordEncoder passwordEncoder;
+    private final UserRepository userRepository;
+    private final RoleRepository roleRepository;
+    private final UserRoleRepository userRoleRepository;
+    private final PasswordEncoder passwordEncoder;
 
     @PostMapping("/create-admin")
     @PreAuthorize("hasRole('ADMIN')")
@@ -99,8 +93,8 @@ public class SecureAdminController {
                 "adminExists", admin.isPresent(),
                 "adminEmail", adminEmail,
                 "message", admin.isPresent() ?
-                    "Admin user exists with email: " + adminEmail :
-                    "No admin user found with email: " + adminEmail + " - set ADMIN_PASSWORD and ADMIN_EMAIL environment variables and restart"
+                        "Admin user exists with email: " + adminEmail :
+                        "No admin user found with email: " + adminEmail + " - set ADMIN_PASSWORD and ADMIN_EMAIL environment variables and restart"
         ));
     }
 }

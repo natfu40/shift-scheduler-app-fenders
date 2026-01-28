@@ -1,7 +1,6 @@
 package com.shiftscheduler.util;
 
 import java.security.MessageDigest;
-import java.security.NoSuchAlgorithmException;
 
 public class PasswordHashUtil {
 
@@ -23,10 +22,5 @@ public class PasswordHashUtil {
         } catch (Exception e) {
             throw new RuntimeException("Error hashing password", e);
         }
-    }
-
-    public static boolean verifySHA256Hash(String password, String storedHash) {
-        String hashedPassword = hashWithSHA256(password);
-        return hashedPassword.equals(storedHash);
     }
 }
