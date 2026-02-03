@@ -12,8 +12,7 @@ shift-scheduler-backend/
 ├── scripts/                # Build and start scripts
 ├── docs/                   # Documentation
 ├── pom.xml                 # Maven project configuration
-├── railway.json            # Railway deployment config
-├── nixpacks.toml           # Nixpacks build config
+└── railway.json            # Railway deployment config
 └── README.md               # Main documentation
 ```
 
@@ -90,7 +89,6 @@ Comprehensive documentation for the project.
 ### Essential Configuration
 - `pom.xml` - Maven project configuration and dependencies
 - `railway.json` - Railway deployment configuration (must be in root)
-- `nixpacks.toml` - Nixpacks build configuration (must be in root)
 
 ### Documentation
 - `README.md` - Main project documentation and quick start guide
@@ -112,7 +110,7 @@ Comprehensive documentation for the project.
 5. **Clean Root** - Only essential files in root directory
 
 ### Deployment Considerations
-- Railway configuration files (`railway.json`, `nixpacks.toml`) must stay in root
+- Railway configuration file (`railway.json`) must stay in root
 - Docker files are in `deployment/` but referenced from root in configs
 - Scripts can be in subdirectory as they're not auto-executed
 

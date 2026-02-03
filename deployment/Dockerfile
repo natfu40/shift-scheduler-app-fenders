@@ -33,7 +33,7 @@ USER appuser
 
 EXPOSE 8080
 
-# Railway-compatible JVM settings with memory optimization
+# Railway-compatible JVM settings (simplified)
 ENTRYPOINT ["java", \
     "-server", \
     "-XX:+UseContainerSupport", \
@@ -41,8 +41,6 @@ ENTRYPOINT ["java", \
     "-XX:InitialRAMPercentage=50.0", \
     "-XX:+UseG1GC", \
     "-XX:MaxGCPauseMillis=100", \
-    "-XX:+ParallelRefProcEnabled", \
-    "-XX:+UseStringDeduplication", \
     "-Djava.security.egd=file:/dev/./urandom", \
     "-Dspring.profiles.active=${SPRING_PROFILES_ACTIVE:railway}", \
     "-jar", "app.jar"]

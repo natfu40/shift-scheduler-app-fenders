@@ -89,8 +89,7 @@ shift-scheduler-backend/
 │   ├── docker-compose.yml          # Docker development setup
 │   ├── docker-compose.prod.yml     # Docker production setup
 │   ├── Dockerfile                  # Container configuration
-│   ├── railway.json                # Railway deployment config
-│   └── nixpacks.toml               # Nixpacks configuration
+│   └── railway.json                # Railway deployment config
 ├── scripts/                # Build and deployment scripts
 │   ├── build.sh                    # General build script
 │   ├── start.sh                    # General start script

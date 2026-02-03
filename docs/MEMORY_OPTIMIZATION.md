@@ -30,11 +30,6 @@ This document outlines all the changes made to resolve out-of-memory errors in b
 
 ### 3. Railway Deployment Configuration
 
-#### Nixpacks Configuration (nixpacks.toml)
-- **JVM Memory Settings**:
-  - Reduced `MaxRAMPercentage` from 75% to 70%
-  - Added `InitialRAMPercentage=50%` to prevent early memory spikes
-  - Added advanced GC tuning parameters
 
 #### Dockerfile Updates (deployment/Dockerfile)
 - **Production JVM Optimization**:

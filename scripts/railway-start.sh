@@ -38,8 +38,6 @@ exec java \
     -XX:InitialRAMPercentage=${INITIAL_HEAP}.0 \
     -XX:+UseG1GC \
     -XX:MaxGCPauseMillis=100 \
-    -XX:+ParallelRefProcEnabled \
-    -XX:+UseStringDeduplication \
     -Djava.security.egd=file:/dev/./urandom \
     -Dspring.profiles.active=railway \
     -jar target/shift-scheduler-backend-1.0.0.jar
