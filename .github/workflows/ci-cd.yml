@@ -31,173 +31,65 @@ jobs:
         # Start Docker daemon if not running
         sudo systemctl start docker
         docker --version
-        # Set TestContainers to use Docker
-        export TESTCONTAINERS_RYUK_DISABLED=true
-        export TESTCONTAINERS_CHECKS_DISABLE=true
+        # Set TestContainers environment variables
         echo "TESTCONTAINERS_RYUK_DISABLED=true" >> $GITHUB_ENV
         echo "TESTCONTAINERS_CHECKS_DISABLE=true" >> $GITHUB_ENV
+        echo "MAVEN_OPTS=-Xmx3072m -XX:MaxMetaspaceSize=512m" >> $GITHUB_ENV
 
-    - name: Validate test environment
+    - name: Run tests with memory optimization
       run: |
-        echo "Checking Maven configuration..."
-        mvn help:effective-pom | grep -A 10 surefire || echo "Surefire plugin not found in effective POM"
-        echo "Checking test classes..."
-        find src/test/java -name "*.java" | head -5
-        echo "Checking Docker for TestContainers..."
-        docker run --rm hello-world || echo "Docker test failed"
-
-    - name: Run tests with verbose output
-      run: |
-        echo "Running Maven tests..."
-        # Set up TestContainers environment variables
+        echo "Running Maven tests with memory optimization..."
+        export MAVEN_OPTS="-Xmx3072m -XX:MaxMetaspaceSize=512m"
         export TESTCONTAINERS_RYUK_DISABLED=true
         export TESTCONTAINERS_CHECKS_DISABLE=true
         
-        # First, try to compile tests
-        echo "Compiling test classes..."
-        mvn test-compile || {
-          echo "Test compilation failed!"
-          exit 1
-        }
-        
-        # Try running just unit tests (non-Spring tests) first
-        echo "Attempting to run simple unit tests..."
-        mvn test -Dtest="**/PasswordHashUtilTest" -Dmaven.test.failure.ignore=true || echo "Unit test run failed"
-        
-        # Check if initial test created reports directory
-        if [ -d "target/surefire-reports" ]; then
-          echo "Surefire reports directory created by unit test"
-        fi
-        
-        # Now try running all tests with fallbacks
-        echo "Attempting full test run with test profile..."
-        mvn test -Dspring.profiles.active=test -Dmaven.test.failure.ignore=true -Dsurefire.reportFormat=xml -DforkCount=1 -DreuseForks=false || {
-          echo "Full test run failed, trying with minimal setup..."
-
-          # Second try: Use H2 in-memory database only, disable parallel execution
+        # Run tests with proper memory settings
+        mvn clean test -Dspring.profiles.active=test \
+          -Dmaven.test.failure.ignore=true \
+          -DforkCount=1 \
+          -DreuseForks=true \
+          -Djunit.jupiter.execution.parallel.enabled=false || {
+          echo "Test run failed, trying with H2 fallback..."
+          
+          # Fallback: Use H2 database only
           mvn test -Dspring.profiles.active=test \
             -Dspring.datasource.url=jdbc:h2:mem:testdb \
             -Dmaven.test.failure.ignore=true \
-            -Dsurefire.reportFormat=xml \
             -DforkCount=1 \
-            -DreuseForks=false \
-            -Djunit.jupiter.execution.parallel.enabled=false || {
-            echo "Second test run failed, trying with system properties override..."
-
-            # Third try: Override all problematic properties and force report generation
-            mvn test -Dspring.profiles.active=test \
-              -Dspring.datasource.url=jdbc:h2:mem:testdb \
-              -Dspring.jpa.database-platform=org.hibernate.dialect.H2Dialect \
-              -Dspring.jpa.hibernate.ddl-auto=create-drop \
-              -Djunit.jupiter.execution.parallel.enabled=false \
-              -Dmaven.test.failure.ignore=true \
-              -Dsurefire.reportFormat=xml \
-              -DforkCount=1 \
-              -DreuseForks=false \
-              -Dsurefire.useFile=true || {
-              echo "All test attempts failed, checking what was generated..."
-
-              # Last try: Force create basic reports structure
-              mkdir -p target/surefire-reports || true
-              echo "Created surefire-reports directory manually"
-            }
-          }
+            -DreuseForks=true
         }
-        echo "Maven test execution completed"
-
-    - name: Check if tests actually ran
-      if: always()
-      run: |
-        echo "Checking if any tests were executed..."
-        if [ -d "target/test-classes" ]; then
-          echo "Test classes directory exists"
-          find target/test-classes -name "*.class" | head -5
-        else
-          echo "No test classes directory found"
-        fi
         
-        echo "Checking for Maven build logs..."
-        # Count XML test files properly
-        xml_count=$(find target/surefire-reports -name "TEST-*.xml" -type f 2>/dev/null | wc -l)
-        if [ "$xml_count" -gt 0 ]; then
-          echo "Test reports found! Found $xml_count XML test report files"
-        else
-          echo "No test reports found. Checking Maven logs for errors..."
-          # Look for common error patterns
-          if ls target/surefire-reports 2>/dev/null; then
-            echo "Surefire reports directory exists but no XML files"
-          else
-            echo "No surefire reports directory - tests likely failed to start"
-          fi
-        fi
+        echo "Test execution completed"
 
-    - name: List test report files (debug)
+    - name: Verify test results
       if: always()
       run: |
-        echo "Contents of target directory:"
-        ls -la target/ || true
-        echo "Contents of surefire-reports directory:"
-        ls -la target/surefire-reports/ || echo "surefire-reports directory does not exist"
-        echo "Checking for any XML files in target:"
-        find target -name "*.xml" -type f | head -10 || echo "No XML files found in target"
-        echo "Count of TEST-*.xml files:"
-        xml_count=$(find target/surefire-reports -name "TEST-*.xml" -type f 2>/dev/null | wc -l)
-        echo "$xml_count"
-        echo "Working directory:"
-        pwd
-        echo "Maven logs check:"
-        if [ "$xml_count" -gt 0 ]; then
-          echo "SUCCESS: Found $xml_count XML test reports"
-          echo "First few test report files:"
-          find target/surefire-reports -name "TEST-*.xml" -type f | head -5
-        else
-          echo "No XML test reports found - Maven test execution may have failed"
-        fi
-
-    - name: Build application
-      run: mvn package -DskipTests
-
-    - name: Verify test reports after build
-      if: always()
-      run: |
-        echo "Verifying test reports are preserved after build..."
+        echo "Checking test execution results..."
         if [ -d "target/surefire-reports" ]; then
           xml_count=$(find target/surefire-reports -name "TEST-*.xml" -type f 2>/dev/null | wc -l)
-          echo "✅ SUCCESS: Found $xml_count XML test reports after build"
-        else
-          echo "❌ ERROR: Test reports directory missing after build - this should not happen!"
-        fi
-
-    - name: Verify test reports for publishing
-      if: always()
-      run: |
-        echo "Final verification of test report generation..."
-        if [ ! -d "target/surefire-reports" ]; then
-          echo "WARNING: Creating surefire-reports directory - tests may not have run"
-          mkdir -p target/surefire-reports
-        fi
-        
-        # Count actual XML files
-        xml_count=$(find target/surefire-reports -name "TEST-*.xml" -type f 2>/dev/null | wc -l)
-        echo "Final count: Found $xml_count XML test report files"
-        
-        if [ "$xml_count" -eq 0 ]; then
-          echo "WARNING: No XML test reports found - creating minimal placeholder for CI"
-          cat > target/surefire-reports/TEST-CI-Placeholder.xml << 'EOF'
+          if [ "$xml_count" -gt 0 ]; then
+            echo "✅ SUCCESS: Found $xml_count XML test reports"
+          else
+            echo "⚠️  WARNING: No XML test reports found - creating placeholder"
+            mkdir -p target/surefire-reports
+            cat > target/surefire-reports/TEST-CI-Placeholder.xml << 'EOF'
         <?xml version="1.0" encoding="UTF-8"?>
         <testsuite name="CI-PlaceholderTest" tests="1" failures="0" errors="1" time="0.001">
           <testcase name="testExecutionCheck" classname="CI.PlaceholderTest" time="0.001">
             <error message="Tests failed to execute in CI environment" type="TestExecutionError">
               Tests failed to run properly in CI. Check Maven logs for details.
-              This is a placeholder report to prevent CI pipeline failure.
             </error>
           </testcase>
         </testsuite>
         EOF
-          echo "Created placeholder test report"
+          fi
         else
-          echo "SUCCESS: Found $xml_count valid XML test reports - no placeholder needed"
+          echo "❌ ERROR: No surefire-reports directory found"
+          mkdir -p target/surefire-reports
         fi
+
+    - name: Build application
+      run: mvn package -DskipTests
 
     - name: Upload test results
       uses: actions/upload-artifact@v4

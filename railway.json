@@ -9,7 +9,12 @@
     "restartPolicyType": "ON_FAILURE",
     "restartPolicyMaxRetries": 3,
     "healthcheckPath": "/actuator/health",
-    "healthcheckTimeout": 60,
-    "startCommand": ""
+    "healthcheckTimeout": 120,
+    "healthcheckInterval": 30,
+    "startCommand": "",
+    "resources": {
+      "memoryLimit": "1Gi",
+      "cpuLimit": "0.5"
+    }
   }
 }
