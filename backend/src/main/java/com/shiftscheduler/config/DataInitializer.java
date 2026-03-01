@@ -43,31 +43,30 @@ public class DataInitializer {
                 return; // Skip admin creation if no email provided
             }
 
+            // Get admin password from environment variable
+            String adminPassword = System.getenv("ADMIN_PASSWORD");
+            if (adminPassword == null || adminPassword.trim().isEmpty()) {
+                logger.warn("ADMIN_PASSWORD environment variable not set. Skipping admin user creation.");
+                logger.warn("To create admin user, set both ADMIN_EMAIL and ADMIN_PASSWORD environment variables and restart.");
+                return;
+            }
+
+            // Hash the admin password: SHA256(adminPassword) -> BCrypt(SHA256_hash)
+            String sha256Hash = PasswordHashUtil.hashWithSHA256(adminPassword);
+            String encodedPassword = passwordEncoder.encode(sha256Hash);
+
             Optional<User> existingAdmin = userRepository.findByEmail(adminEmail);
             if (existingAdmin.isEmpty()) {
-                // Get admin password from environment variable
-                String adminPassword = System.getenv("ADMIN_PASSWORD");
-                if (adminPassword == null || adminPassword.trim().isEmpty()) {
-                    logger.warn("ADMIN_PASSWORD environment variable not set. Skipping admin user creation.");
-                    logger.warn("To create admin user, set both ADMIN_EMAIL and ADMIN_PASSWORD environment variables and restart.");
-                    return; // Skip admin creation if no password provided
-                }
-
-                logger.info("Creating initial admin user (one-time only)...");
+                logger.info("Creating initial admin user...");
                 logger.info("Admin email: {}", adminEmail);
 
-                // Create fresh admin user with SHA256_BCRYPT method
                 User admin = new User();
                 admin.setEmail(adminEmail);
-
-                // Hash the admin password: SHA256(adminPassword) -> BCrypt(SHA256_hash)
-                String sha256Hash = PasswordHashUtil.hashWithSHA256(adminPassword);
-                admin.setPassword(passwordEncoder.encode(sha256Hash));
-
+                admin.setPassword(encodedPassword);
                 admin.setFirstName("Admin");
                 admin.setLastName("User");
                 admin.setActive(true);
-                admin.setFirstTimeLogin(true); // Force password change on first login for security
+                admin.setFirstTimeLogin(true);
                 admin.setPasswordHashMethod("SHA256_BCRYPT");
                 User savedAdmin = userRepository.save(admin);
 
@@ -81,11 +80,43 @@ public class DataInitializer {
 
                 logger.info("✅ Initial admin user created successfully with email: {}", adminEmail);
                 logger.info("⚠️ Admin must change password on first login for security");
-
-                // Clear sensitive data from memory (best practice)
-                System.gc(); // Suggest garbage collection to clear password from memory
             } else {
-                logger.info("Admin user already exists with email: {} - skipping creation (security: no recreation)", adminEmail);
+                // User already exists — ensure password and method are correct (fixes stale/broken records)
+                User admin = existingAdmin.get();
+                boolean needsUpdate = false;
+
+                if (!"SHA256_BCRYPT".equals(admin.getPasswordHashMethod())) {
+                    logger.warn("Admin user exists but has wrong password method ({}). Fixing...", admin.getPasswordHashMethod());
+                    admin.setPasswordHashMethod("SHA256_BCRYPT");
+                    needsUpdate = true;
+                }
+
+                if (!passwordEncoder.matches(sha256Hash, admin.getPassword())) {
+                    logger.warn("Admin user exists but password does not match env var. Resetting password...");
+                    admin.setPassword(encodedPassword);
+                    admin.setFirstTimeLogin(true);
+                    needsUpdate = true;
+                }
+
+                if (needsUpdate) {
+                    userRepository.save(admin);
+                    logger.info("✅ Admin user updated for email: {}", adminEmail);
+                } else {
+                    logger.info("Admin user already exists and is correctly configured: {}", adminEmail);
+                }
+
+                // Ensure ADMIN role is assigned
+                Role adminRole = roleRepository.findByName("ADMIN")
+                        .orElseThrow(() -> new RuntimeException("ADMIN role not found"));
+                boolean hasAdminRole = userRoleRepository.findByUserId(admin.getId())
+                        .stream().anyMatch(ur -> "ADMIN".equals(ur.getRole().getName()));
+                if (!hasAdminRole) {
+                    logger.warn("Admin user missing ADMIN role. Assigning...");
+                    UserRole userRole = new UserRole();
+                    userRole.setUser(admin);
+                    userRole.setRole(adminRole);
+                    userRoleRepository.save(userRole);
+                }
             }
         };
     }

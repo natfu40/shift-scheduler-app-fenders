@@ -55,6 +55,7 @@ public class AuthService {
 
         // All users should use SHA256_BCRYPT method (frontend sends SHA256, backend stores BCrypt(SHA256))
         if (!"SHA256_BCRYPT".equals(user.getPasswordHashMethod())) {
+            logger.warn("LOGIN FAILED: wrong hash method '{}' for user {}", user.getPasswordHashMethod(), user.getEmail());
             throw new BadCredentialsException("User account uses incompatible password method. Please contact administrator.");
         }
 

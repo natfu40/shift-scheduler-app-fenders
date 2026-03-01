@@ -33,7 +33,7 @@ services:
       SPRING_DATASOURCE_URL: jdbc:postgresql://postgres:5432/${DB_NAME:-shift_scheduler}
       SPRING_DATASOURCE_USERNAME: ${DB_USERNAME:-postgres}
       SPRING_DATASOURCE_PASSWORD: ${DB_PASSWORD:-postgres}
-      JWT_SECRET: ${JWT_SECRET:-development-secret-key-change-in-production}
+      JWT_SECRET: ${JWT_SECRET:-development-secret-key-that-is-long-enough-for-hs512-algorithm-min-64-chars}
       SPRING_JPA_HIBERNATE_DDL_AUTO: ${JPA_DDL_AUTO:-update}
     depends_on:
       postgres:

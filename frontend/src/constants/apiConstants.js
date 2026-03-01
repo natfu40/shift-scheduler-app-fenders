@@ -1,6 +1,7 @@
 // API configuration constants
+const apiBase = process.env.REACT_APP_API_URL || 'http://localhost:8080';
 export const API_CONFIG = {
-  BASE_URL: process.env.REACT_APP_API_URL || 'http://localhost:8080/api',
+  BASE_URL: apiBase.endsWith('/api') ? apiBase : `${apiBase}/api`,
   DEFAULT_PAGE_SIZE: 10,
   DEFAULT_PAGE: 0,
 };

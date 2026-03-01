@@ -3,7 +3,7 @@
 # Runs frontend (nginx), backend (Spring Boot), and PostgreSQL
 #
 # Required environment variables (create a .env file or export them):
-#   DB_USERNAME, DB_PASSWORD, JWT_SECRET, REACT_APP_API_URL
+#   DB_USERNAME, DB_PASSWORD, JWT_SECRET, REACT_APP_API_URL, ADMIN_EMAIL, ADMIN_PASSWORD
 #
 # Optional:
 #   DB_NAME (default: shift_scheduler)
@@ -40,6 +40,8 @@ services:
       DB_PASSWORD: ${DB_PASSWORD}
       JWT_SECRET: ${JWT_SECRET}
       JWT_EXPIRATION: ${JWT_EXPIRATION:-86400000}
+      ADMIN_EMAIL: ${ADMIN_EMAIL}
+      ADMIN_PASSWORD: ${ADMIN_PASSWORD}
     depends_on:
       postgres:
         condition: service_healthy
