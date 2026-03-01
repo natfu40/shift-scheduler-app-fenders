@@ -15,6 +15,9 @@ jobs:
   test:
     runs-on: ubuntu-latest
     name: Build and Test
+    defaults:
+      run:
+        working-directory: backend
 
     steps:
     - uses: actions/checkout@v4
@@ -97,22 +100,22 @@ jobs:
       with:
         name: test-results
         path: |
-          target/surefire-reports/
-          target/site/jacoco/
-          target/maven-status/
+          backend/target/surefire-reports/
+          backend/target/site/jacoco/
+          backend/target/maven-status/
 
     - name: Publish Test Results
       uses: EnricoMi/publish-unit-test-result-action@v2
       if: always()
       with:
-        files: target/surefire-reports/TEST-*.xml
+        files: backend/target/surefire-reports/TEST-*.xml
         check_name: Maven Tests
 
     - name: Upload build artifacts
       uses: actions/upload-artifact@v4
       with:
         name: jar-artifact
-        path: target/*.jar
+        path: backend/target/*.jar
 
   deploy:
     needs: [test]
@@ -127,12 +130,11 @@ jobs:
       uses: actions/download-artifact@v4
       with:
         name: jar-artifact
-        path: target/
+        path: backend/target/
 
     - name: Build Docker image
       run: |
-        docker build -f deployment/Dockerfile -t shift-scheduler-backend .
+        docker build -f backend/deployment/Dockerfile -t shift-scheduler-app-fenders ./backend
 
     - name: List Docker images
-      run: docker images shift-scheduler-backend
-
+      run: docker images shift-scheduler-app-fenders

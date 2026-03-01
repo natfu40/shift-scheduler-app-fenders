@@ -6,7 +6,7 @@ set -e
 echo "Starting Shift Scheduler Backend..."
 
 # Build the application if jar doesn't exist
-if [ ! -f "target/shift-scheduler-backend-1.0.0.jar" ]; then
+if [ ! -f "target/shift-scheduler-app-fenders-1.0.0.jar" ]; then
     echo "Building application..."
     mvn clean package -DskipTests -Dmaven.compiler.source=17 -Dmaven.compiler.target=17
 fi

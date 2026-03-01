@@ -23,7 +23,7 @@ RUN addgroup -g 1001 -S appuser && \
 WORKDIR /app
 
 # Copy the built JAR
-COPY --from=builder /app/target/shift-scheduler-backend-1.0.0.jar app.jar
+COPY --from=builder /app/target/shift-scheduler-app-fenders-1.0.0.jar app.jar
 
 # Change ownership to non-root user
 RUN chown -R appuser:appuser /app

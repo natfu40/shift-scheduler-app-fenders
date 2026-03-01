@@ -1,5 +1,6 @@
-# Production Docker Compose Configuration
-# Usage: docker-compose -f docker-compose.prod.yml up -d
+# NOTE: This file is for running the backend + database in production only (no frontend).
+# To run the full production stack, use the root-level docker-compose.prod.yml instead:
+#   cd ../../ && docker-compose -f docker-compose.prod.yml up -d
 
 services:
   postgres:
@@ -44,31 +45,6 @@ services:
       timeout: 10s
       retries: 3
       start_period: 60s
-
-  frontend:
-    build:
-      context: ./frontend
-      dockerfile: Dockerfile.prod
-      args:
-        - REACT_APP_API_URL=${REACT_APP_API_URL}
-    restart: unless-stopped
-    networks:
-      - app-network
-
-  nginx:
-    image: nginx:alpine
-    ports:
-      - "${PORT:-80}:80"
-      - "${HTTPS_PORT:-443}:443"
-    volumes:
-      - ./nginx/nginx.conf:/etc/nginx/nginx.conf:ro
-      - ./nginx/ssl:/etc/nginx/ssl:ro
-    depends_on:
-      - frontend
-      - backend
-    restart: unless-stopped
-    networks:
-      - app-network
 
 volumes:
   postgres_data:

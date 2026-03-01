@@ -10,4 +10,4 @@ echo "Running Maven build..."
 mvn clean package -DskipTests -Dmaven.compiler.source=17 -Dmaven.compiler.target=17
 
 echo "Build completed successfully!"
-echo "JAR file location: target/shift-scheduler-backend-1.0.0.jar"
+echo "JAR file location: target/shift-scheduler-app-fenders-1.0.0.jar"

@@ -13,10 +13,10 @@
     </parent>
 
     <groupId>com.shiftscheduler</groupId>
-    <artifactId>shift-scheduler-backend</artifactId>
+    <artifactId>shift-scheduler-app-fenders</artifactId>
     <version>1.0.0</version>
-    <name>Shift Scheduler Backend</name>
-    <description>Backend API for Shift Scheduler application</description>
+    <name>Shift Scheduler App Fenders</name>
+    <description>Backend API for Shift Scheduler App Fenders</description>
 
     <properties>
         <java.version>17</java.version>
